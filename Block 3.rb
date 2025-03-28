@@ -1,0 +1,101 @@
+class DiscreteVariationSeries
+  def initialize(initialization_type, values)
+    accepted_types = [1, 2, 3, "probability", "grouped frequency", "ungrouped frequency"]
+
+    if not(initialization_type in accepted_types) then raise "Недопустимый тип инициализации!"
+    end
+
+    if (initialization_type == 1 or initialization_type = "probability") then
+      @series = Array.new
+      summ = 0
+
+      for el in values
+        if not(el[0].is?(Numeric)) then raise "Недопустимое значение случайной величины!"
+        end
+        if not(el[1].is?(Numeric)) or el[1] < 0 or el[1] > 1 then raise "Недопустимое значение вероятности!"
+        end
+        summ += el[1]
+        @series += [[el[0], el[1], 0]]
+      end
+
+      if (summ > 1) then raise "Сумма всех вероятностей больше 1!"
+      end
+    else 
+      if (initialization_type == 2 or initialization_type = "grouped frequency") then
+        @series = Array.new
+        summ = 0
+
+        for el in values
+          if not(el[0].is?(Numeric)) then raise "Недопустимое значение случайной величины!"
+          end
+          if not(el[1].is?(Integer)) or el[1] < 0 then raise "Недопустимое значение частоты!"
+          end
+          summ += el[1]
+          @series += [[el[0], 0, el[1]]]
+        end
+        for i in [0..(@series.length)]
+          @series[i][1] = @series[i][2] / summ
+        end
+      else
+        # TO DO
+      end
+    end
+    @series = @series.sort_by(&:first)
+    self
+  end
+
+  def mathExpectation()
+    me = 0
+    for i in [0..@series.length]
+      me += @series[i][0] * @series[i][1]
+    end
+    me
+  end
+
+  def variance()
+    me = self.mathExpectation
+    v = 0
+    for i in [0..@series.length]
+      v = (@series[i][0] - me) * (@series[i][0] - me) * @series[i][1]
+    end
+    v
+  end
+
+  def aSD()
+    Math::sqrt(self.variance)
+  end
+
+  def distributionFunction(x)
+    summ = 0
+    for i in [0..@series.length]
+      if (x <= @series[i][0]) then
+        return summ
+      end
+      summ += @series[i][1]
+    end
+    summ
+  end
+end
+
+class IntervalVariationSeries < DiscreteVariationSeries
+  def initialize(initialization_type, values)
+    accepted_types = [1, 2, 3, "probability", "grouped frequency", "ungrouped frequency"]
+
+    if not(initialization_type in accepted_types) then raise "Недопустимый тип инициализации!"
+    end
+
+    if (initialization_type == 1 or initialization_type == "probability") then
+      for el in values
+        # TO DO
+      end
+    else
+      if (initialization_type == 2 or initialization_type == "grouped frequency") then
+        # TO DO
+      else
+        # TO DO
+      end
+    end
+    @series = @series.sort_by(&:first)
+    self
+  end
+end
