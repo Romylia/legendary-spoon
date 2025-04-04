@@ -1,58 +1,148 @@
-def factorial(n)
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
+class DiscreteVariationSeries
+  def initialize(initialization_type, values)
+    accepted_types = ["probability", "grouped frequency", "ungrouped frequency", "p", "gf". "uf", 1, 2, 3]
 
-  fact = 1
-  for i in 1..n
-    fact *= i
+    begin
+      if not(initialization_type in accepted_types) then
+        raise "Недопустимый тип инициализации!"
+      end
+
+      if (initialization_type == "probability" or initialization_type = "p" or initialization_type == 1) then
+        summ = 0
+        
+        for el in values
+          if not(el[0].is?(Numeric)) then 
+            raise "Недопустимое значение случайной величины!"
+          end
+
+          if not(el[1].is?(Numeric)) or el[1] < 0 or el[1] > 1 then 
+            raise "Недопустимое значение вероятности!"
+          end
+
+          summ += el[1]
+        end
+
+        if (summ > 1) then 
+          raise "Сумма всех вероятностей больше 1!"
+        end
+
+        probability_initializer(values)
+      else
+        for el in values
+          if not(el[0].is?(Numeric)) then 
+            raise "Недопустимое значение случайной величины!"
+          end
+          
+          if not(el[1].is?(Integer)) or el[1] < 0 then 
+            raise "Недопустимое значение частоты!"
+          end
+        end
+
+        group_frequency_initializer(group_frequency(values))
+      end
+
+      @series = @series.sort_by(&:first)
+      self
+    rescue Exception => ex
+      puts ex.message
+      @series = nil
+      self
+    end
   end
-  return fact 
-end 
 
-def permutations_without_repetitions(n)
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
-  
-  return factorial(n)
-end
-
-def permutations_with_repetitions(n, counts)
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
-  raise ArgumentError, "Counts must be an array of non-negative integers." unless counts.is_a?(Array) && counts.all? { |c| c.is_a?(Integer) && c >= 0 }
-  
-  result = factorial(n)
-  
-  for element in counts do
-    result = result / factorial(element)
+  def mathExpectation()
+    me = 0
+    for i in [0..@series.length]
+      me += @series[i][0] * @series[i][1]
+    end
+    me
   end
-  
-  return result
+
+  def variance()
+    me = self.mathExpectation
+    v = 0
+    for i in [0..@series.length]
+      v = (@series[i][0] - me) * (@series[i][0] - me) * @series[i][1]
+    end
+    v
+  end
+
+  def aSD()
+    Math::sqrt(self.variance)
+  end
+
+  def distributionFunction(x)
+    summ = 0
+    for i in [0..@series.length]
+      if (x <= @series[i][0]) then
+        return summ
+      end
+      summ += @series[i][1]
+    end
+    summ
+  end
+  private
+
+  def probability_initializer(values)
+    @series = Array.new
+    summ = 0
+
+    for el in values
+      summ += el[1]
+      @series += [[el[0], el[1], 0]]
+    end
+
+    
+
+    @series
+    @series = nil
+  end
+
+  def group(values) 
+
+  end
+
+  def group_frequency_initializer(values)
+    begin
+      @series = Array.new
+      summ = 0
+
+      for el in values
+        
+        summ += el[1]
+        @series += [[el[0], 0, el[1]]]
+      end
+
+      for i in [0..(@series.length)]
+        @series[i][1] = @series[i][2] / summ
+      end
+
+      @series
+    rescue
+        @series = nil
+    end
+  end
 end
 
-def arrangements_without_repetitions(n, k)
-  raise ArgumentError, "Input must be a non-negative integer." unless k.is_a?(Integer) && k >= 0
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
-  raise ArgumentError, "k must be less than or equal to n." unless k <= n
-  
-  return factorial(n) / factorial(n - k)
-end
+class IntervalVariationSeries < DiscreteVariationSeries
+  def initialize(initialization_type, values)
+    accepted_types = [1, 2, 3, "probability", "grouped frequency", "ungrouped frequency"]
 
-def arrangements_with_repetitions(n, k)
-  raise ArgumentError, "Input must be a non-negative integer." unless k.is_a?(Integer) && k >= 0
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
-  
-  return n**k
-end
+    if not(initialization_type in accepted_types) then raise "Недопустимый тип инициализации!"
+    end
 
-def combinations_without_repetitions(n, k)
-  raise ArgumentError, "Input must be a non-negative integer." unless k.is_a?(Integer) && k >= 0
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
-  raise ArgumentError, "k must be less than or equal to n." unless k <= n
-
-  return factorial(n) / (factorial(k) * factorial(n - k))
-end
-
-def combinations_with_repetitions(n, k)
-  raise ArgumentError, "Input must be a non-negative integer." unless k.is_a?(Integer) && k >= 0
-  raise ArgumentError, "Input must be a non-negative integer." unless n.is_a?(Integer) && n >= 0
-  
-  return factorial(n + k - 1) / (factorial(k) * factorial(n - 1))
+    if (initialization_type == 1 or initialization_type == "probability") then
+      for el in values
+        # TO DO
+      end
+    else
+      if (initialization_type == 2 or initialization_type == "grouped frequency") then
+        # TO DO
+      else
+        # TO DO
+      end
+    end
+    @series = @series.sort_by(&:first)
+    self
+  end
 end
