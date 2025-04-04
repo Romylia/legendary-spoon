@@ -7,14 +7,16 @@ class DiscreteVariationSeries
         raise "Недопустимый тип инициализации!"
       end
 
-      if (initialization_type == "probability" or initialization_type = "p" or initialization_type == 1) then
-        summ = 0
-        
-        for el in values
+      for el in values
           if not(el[0].is?(Numeric)) then 
             raise "Недопустимое значение случайной величины!"
           end
-
+      end
+        
+      if (initialization_type == "probability" or initialization_type = "p" or initialization_type == 1) then
+        summ = 0
+      
+        for el in values
           if not(el[1].is?(Numeric)) or el[1] < 0 or el[1] > 1 then 
             raise "Недопустимое значение вероятности!"
           end
@@ -29,10 +31,6 @@ class DiscreteVariationSeries
         probability_initializer(values)
       else
         for el in values
-          if not(el[0].is?(Numeric)) then 
-            raise "Недопустимое значение случайной величины!"
-          end
-          
           if not(el[1].is?(Integer)) or el[1] < 0 then 
             raise "Недопустимое значение частоты!"
           end
@@ -81,14 +79,13 @@ class DiscreteVariationSeries
     end
     summ
   end
+  
   private
 
   def probability_initializer(values)
     @series = Array.new
-    summ = 0
 
     for el in values
-      summ += el[1]
       @series += [[el[0], el[1], 0]]
     end
 
